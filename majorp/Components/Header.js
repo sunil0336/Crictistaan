@@ -35,12 +35,11 @@ export default function HeaderEnhanced() {
     }
   }, [isClient]);
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem('token'); // Clear token
-  //   setUser(null); // Update state to reflect user logged out
-  //   router.push('/'); // Redirect to homepage or login page after logout
+  // const handleLogout = async () => {
+  //   await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+  //   window.location.href = "/login"; // Redirect after logout
   // };
-
+  
   const handleLogout = () => {
     localStorage.removeItem('token'); // Clear token
     setUser(null); // Update state to reflect user logged out

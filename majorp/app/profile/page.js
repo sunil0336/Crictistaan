@@ -1,8 +1,42 @@
+"use client";
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Star, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/auth/profile", {
+          method: "GET",
+          credentials: "include", // 🔥 Important to send cookies
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setUser(data.user);
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (!user) return <p>User not found. Please log in.</p>;
+
   return (
     <div className="min-h-screen bg-purple-900 text-white">
       <main className="container mx-auto px-4 py-8">
@@ -20,8 +54,8 @@ export default function ProfilePage() {
 
             <div className="flex-1 text-center md:text-left">
               <div className="space-y-2 mb-6">
-                <p className="text-lg font-medium">Name: Chandler</p>
-                <p className="text-gray-300">Email: Chandler@gmail.com</p>
+                <p className="text-lg font-medium">{user.name}</p>
+                <p className="text-gray-300">{user.email}</p>
               </div>
 
               <Button variant="outline" className="text-white border-white hover:bg-purple-800">
@@ -164,3 +198,48 @@ const recentMovies = [
   },
 ]
 
+// "use client";
+
+// import { useState, useEffect } from "react";
+
+// export default function Profile() {
+//   const [user, setUser] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchProfile = async () => {
+//       try {
+//         const res = await fetch("/api/auth/profile", {
+//           method: "GET",
+//           credentials: "include", // 🔥 Important to send cookies
+//         });
+
+//         const data = await res.json();
+
+//         if (res.ok) {
+//           setUser(data.user);
+//         } else {
+//           console.error(data.message);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching user profile:", error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchProfile();
+//   }, []);
+
+//   if (loading) return <p>Loading...</p>;
+//   if (!user) return <p>User not found. Please log in.</p>;
+
+//   return (
+//     <div className="max-w-md mx-auto mt-10 p-5 border rounded-lg shadow-lg bg-white">
+//       <h2 className="text-2xl font-bold mb-4">Profile</h2>
+//       <p><strong>Username:</strong> {user.username}</p>
+//       <p><strong>Name:</strong> {user.name}</p>
+//       <p><strong>Email:</strong> {user.email}</p>
+//     </div>
+//   );
+// }
