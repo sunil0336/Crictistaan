@@ -14,6 +14,22 @@ pnpm dev
 bun dev
 ```
 
+# things have to install 
+```bash
+npm install next-auth bcryptjs mongoose jsonwebtoken
+
+```
+
+# Please your environment variables
+
+```
+MONGO_URI=mongodb://username:password@localhost:27017/database_name
+NEXTAUTH_SECRET=your_random_secret_key
+NEXTAUTH_URL=http://localhost:3000
+
+```
+
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
