@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
+import { useRouter } from 'next/navigation';
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import SearchBar from "./searchbar"
@@ -9,17 +10,53 @@ import ThemeToggle from "./theme-toggle"
 
 export default function HeaderEnhanced() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [user, setUser] = useState(null)
+  const [isClient, setIsClient] = useState(false); // Flag to track if we're on the client side
+  const router = useRouter(); // Initialize router
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
 
+  useEffect(() => {
+    // This effect will run only after the component is mounted on the client side
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        setUser(true); // User is logged in if there's a token
+      } else {
+        setUser(null); // No token means user is not logged in
+      }
+    }
+  }, [isClient]);
+
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token'); // Clear token
+  //   setUser(null); // Update state to reflect user logged out
+  //   router.push('/'); // Redirect to homepage or login page after logout
+  // };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Clear token
+    setUser(null); // Update state to reflect user logged out
+    if (isClient && router) {
+      router.push('/'); // Redirect to homepage or login page after logout
+    }
+  };
+  
+
+
   // Mock user data - replace with actual auth logic
-  const user = {
-    name: "Sunil",
-    email: "sunilrathod.0336@gmail.com",
-    image: null,
-  }
+  // const user = {
+  //   name: "Sunil",
+  //   email: "sunilrathod.0336@gmail.com",
+  //   image: null,
+  // }
 
   return (
     <header className="bg-purple-900 py-3 px-4 sticky top-0 z-10 border-b border-purple-800">
@@ -43,8 +80,8 @@ export default function HeaderEnhanced() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/tv-shows" className="text-white hover:text-yellow-400">
-                    TV Shows
+                  <Link href="/test" className="text-white hover:text-yellow-400">
+                    TV Shows test
                   </Link>
                 </li>
                 <li>
@@ -68,7 +105,19 @@ export default function HeaderEnhanced() {
 
             <ThemeToggle />
 
-            <UserMenu user={user} />
+            {/* <UserMenu user={user} /> */}
+            {user ? (
+              <>
+                <UserMenu user={user} />
+                <button onClick={handleLogout} className="text-white hover:text-yellow-400">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="text-white hover:text-yellow-400">
+                Login
+              </Link>
+            )}
 
             <button className="md:hidden text-white" onClick={toggleMenu}>
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
