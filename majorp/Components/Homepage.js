@@ -4,6 +4,8 @@ import MovieSection from "./movie-section";
 import TrailersSection from "./trailers-section";
 
 export default function Homepage() {
+
+
   return (
     <div className="min-h-screen bg-purple-900 text-white">
       <Header />

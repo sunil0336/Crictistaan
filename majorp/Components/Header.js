@@ -11,8 +11,10 @@ import ThemeToggle from "./theme-toggle"
 export default function HeaderEnhanced() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [user, setUser] = useState(null)
-  const [isClient, setIsClient] = useState(false); // Flag to track if we're on the client side
-  const router = useRouter(); // Initialize router
+  const [searchResults, setSearchResults] = useState([]) // Restored search feature
+  const [isSearching, setIsSearching] = useState(false) // Restored search feature
+  const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
 
   const toggleMenu = () => {
@@ -20,25 +22,17 @@ export default function HeaderEnhanced() {
   }
 
   useEffect(() => {
-    // This effect will run only after the component is mounted on the client side
     setIsClient(true);
   }, []);
 
   useEffect(() => {
     if (isClient) {
       const token = localStorage.getItem('token');
-      if (token) {
-        setUser(true); // User is logged in if there's a token
-      } else {
-        setUser(null); // No token means user is not logged in
-      }
+      setUser(token ? true : null) 
     }
   }, [isClient]);
 
-  // const handleLogout = async () => {
-  //   await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-  //   window.location.href = "/login"; // Redirect after logout
-  // };
+  
   
   const handleLogout = () => {
     localStorage.removeItem('token'); // Clear token
@@ -48,14 +42,30 @@ export default function HeaderEnhanced() {
     }
   };
   
+  const handleSearch = async (term) => {
+    if (!term) {
+      setSearchResults([])
+      return
+    }
 
+    setIsSearching(true)
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(term)}`)
+      const data = await response.json()
+      setSearchResults(data.movies)
+    } catch (error) {
+      console.error("Search error:", error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
 
-  // Mock user data - replace with actual auth logic
-  // const user = {
-  //   name: "Sunil",
-  //   email: "sunilrathod.0336@gmail.com",
-  //   image: null,
-  // }
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "Movies", path: "/movies" },
+    { name: "TV Shows", path: "/tv-shows" }, // Restored correct path
+    { name: "New Releases", path: "/new-releases" },
+  ]
 
   return (
     <header className="bg-purple-900 py-3 px-4 sticky top-0 z-10 border-b border-purple-800">
@@ -68,38 +78,52 @@ export default function HeaderEnhanced() {
 
             <nav className="hidden md:flex">
               <ul className="flex gap-6">
-                <li>
-                  <Link href="/" className="text-white hover:text-yellow-400">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/movies" className="text-white hover:text-yellow-400">
-                    Movies
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/test" className="text-white hover:text-yellow-400">
-                    TV Shows test
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/new-releases" className="text-white hover:text-yellow-400">
-                    New Releases
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/top-rated" className="text-white hover:text-yellow-400">
-                    Top Rated
-                  </Link>
-                </li>
+              {navItems.map((item) => (
+                  <li key={item.path}>
+                    <Link
+                      href={item.path}
+                      className="text-white hover:text-yellow-400"
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="hidden md:block w-[300px]">
-              <SearchBar onSearch={(term) => console.log("Searching for:", term)} />
+              <SearchBar onSearch={handleSearch} /> {/* Restored Search Feature */}
+              {searchResults.length > 0 && (
+                <div className="absolute top-full mt-1 w-full bg-purple-950 rounded-md shadow-lg z-20 max-h-[400px] overflow-y-auto">
+                  <ul className="py-2">
+                    {searchResults.map((movie) => (
+                      <li key={movie._id}>
+                        <Link
+                          href={`/movies/${movie._id}`}
+                          className="flex items-center px-4 py-2 hover:bg-purple-800"
+                          onClick={() => setSearchResults([])}
+                        >
+                          <div className="w-8 h-12 bg-purple-800 rounded mr-2 flex-shrink-0">
+                            {movie.poster && (
+                              <img
+                                src={movie.poster || "/placeholder.svg"}
+                                alt={movie.title}
+                                className="w-full h-full object-cover rounded"
+                              />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">{movie.title}</p>
+                            <p className="text-xs text-gray-300">{movie.year}</p>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <ThemeToggle />
@@ -108,9 +132,9 @@ export default function HeaderEnhanced() {
             {user ? (
               <>
                 <UserMenu user={user} />
-                <button onClick={handleLogout} className="text-white hover:text-yellow-400">
+                {/* <button onClick={handleLogout} className="text-white hover:text-yellow-400">
                   Logout
-                </button>
+                </button> */}
               </>
             ) : (
               <Link href="/login" className="text-white hover:text-yellow-400">

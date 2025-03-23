@@ -268,33 +268,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#4b0082] to-[#2e0854] text-white">
       <div className="container mx-auto px-4 py-6">
-        {/* Navigation Tabs */}
-        <div className="mb-8 rounded-full bg-[#1a1a1a]/30 p-1 flex items-center justify-start max-w-4xl mx-auto">
-          <button
-            className={`px-6 py-2 rounded-full transition-colors ${activeTab === "movies" ? "bg-[#f5c518] text-black font-medium" : "text-white hover:bg-[#ffffff]/10"}`}
-            onClick={() => setActiveTab("movies")}
-          >
-            Movies
-          </button>
-          <button
-            className={`px-6 py-2 rounded-full transition-colors ${activeTab === "tv-shows" ? "bg-[#f5c518] text-black font-medium" : "text-white hover:bg-[#ffffff]/10"}`}
-            onClick={() => setActiveTab("tv-shows")}
-          >
-            TV Shows
-          </button>
-          <button
-            className={`px-6 py-2 rounded-full transition-colors ${activeTab === "documentaries" ? "bg-[#f5c518] text-black font-medium" : "text-white hover:bg-[#ffffff]/10"}`}
-            onClick={() => setActiveTab("documentaries")}
-          >
-            Documentaries
-          </button>
-          <button
-            className={`px-6 py-2 rounded-full transition-colors ${activeTab === "anime" ? "bg-[#f5c518] text-black font-medium" : "text-white hover:bg-[#ffffff]/10"}`}
-            onClick={() => setActiveTab("anime")}
-          >
-            Anime
-          </button>
-        </div>
 
         <div className="flex flex-col md:flex-row">
           {/* Sidebar Filters */}
@@ -370,55 +343,7 @@ export default function Home() {
                         </div>
                       )}
 
-                      {category.id === "rating" && (
-                        <div className="space-y-2">
-                          <div className="flex items-center">
-                            {[1, 2, 3, 4, 5].map((rating) => (
-                              <Star
-                                key={rating}
-                                size={16}
-                                className={`cursor-pointer ${rating <= filters.minRating ? "text-[#f5c518] fill-[#f5c518]" : "text-gray-400"}`}
-                                onClick={() => updateFilter("minRating", rating)}
-                              />
-                            ))}
-                            <span className="ml-2 text-sm">& up</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {category.id === "where-to-watch" && (
-                        <div className="space-y-2">
-                          {allPlatforms.map((platform) => (
-                            <label key={platform} className="flex items-center space-x-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={filters.platforms.includes(platform)}
-                                onChange={() => togglePlatformFilter(platform)}
-                                className="rounded text-[#f5c518] focus:ring-[#f5c518]"
-                              />
-                              <span className="text-sm">{platform}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-
-                      {category.id === "keywords" && (
-                        <div className="space-y-2">
-                          <div className="relative">
-                            <input
-                              type="text"
-                              placeholder="Search keywords..."
-                              value={filters.searchKeyword}
-                              onChange={(e) => updateFilter("searchKeyword", e.target.value)}
-                              className="w-full py-1 px-2 pr-8 bg-[#1a1a1a]/50 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#f5c518]"
-                            />
-                            <Search
-                              size={14}
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"
-                            />
-                          </div>
-                        </div>
-                      )}
+                      
                     </div>
                   )}
                 </div>
@@ -429,24 +354,24 @@ export default function Home() {
           {/* Main Content */}
           <div className="flex-1">
             {/* Critics Top Rated Section */}
-            <ShowsSection
+            {/* <ShowsSection
               id="critics-top-rated"
               title="Critics Top Rated"
               shows={criticsTopRated}
               addedShows={addedShows}
               onAddShow={toggleAddShow}
               onScroll={scrollSection}
-            />
+            /> */}
 
             {/* Indian Shows Section */}
-            <ShowsSection
+            {/* <ShowsSection
               id="indian-shows"
               title="Indian Shows"
               shows={indianShows}
               addedShows={addedShows}
               onAddShow={toggleAddShow}
               onScroll={scrollSection}
-            />
+            /> */}
 
             {/* Additional Shows (Third Row) */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
