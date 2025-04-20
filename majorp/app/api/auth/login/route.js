@@ -1,47 +1,57 @@
-import { connectDB } from "@/lib/db";
-import User from "@/models/User";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers"; // Import Next.js cookies handler
-import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db"; // Import your MongoDB connection function
+import bcrypt from "bcryptjs"; // For password hashing
+import jwt from "jsonwebtoken"; // For generating JWT token
+
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || "your_jwt_secret_key"; // Set this in .env.local for production
 
 export async function POST(req) {
+  const { username, password } = await req.json();
+
   try {
-    await connectDB();
-    const { username, password } = await req.json();
+    // Connect to MongoDB
+    const db = await connectDB();
 
-    // Find user
-    const user = await User.findOne({ username });
+    // Check if the user exists in the "users" collection
+    const user = await db.collection("users").findOne({ username });
+
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 400 });
+      console.error("User not found:", username);
+      return new Response(
+        JSON.stringify({ message: "Invalid username or password" }),
+        { status: 401 }
+      );
     }
 
-    // Check password
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+    // Compare the hashed password using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      console.error("Password mismatch for user:", username);
+      return new Response(
+        JSON.stringify({ message: "Invalid username or password" }),
+        { status: 401 }
+      );
     }
 
-    // Generate JWT Token
+    // If user is found and password matches, generate JWT token
     const token = jwt.sign(
-      { userId: user._id, username: user.username },
-      process.env.NEXTAUTH_SECRET,
-      { expiresIn: "1h" }
+      { username: user.username, userId: user._id },
+      JWT_SECRET,
+      { expiresIn: "1h" } // Token will expire in 1 hour
     );
 
-    // ✅ Store token in HTTP-only Cookie
-    cookies().set({
-      name: "token",
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Set secure in production
-      path: "/",
-      maxAge: 3600, // 1 hour
-    });
-
-    return NextResponse.json({ message: "Login successful" }, { status: 200 });
-
+    return new Response(
+      JSON.stringify({
+        message: "Login successful",
+        token, // Send JWT token in response
+      }),
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({ message: "Server error", error: error.message }, { status: 500 });
+    console.error("Error occurred while processing login:", error.message);  // Log the error message
+    return new Response(
+      JSON.stringify({ message: "Server error", error: error.message }), // Include error message in response
+      { status: 500 }
+    );
   }
 }

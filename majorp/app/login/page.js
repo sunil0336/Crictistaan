@@ -11,20 +11,27 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(""); // Clear previous error message
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      // Send a POST request to the login API
+      const res = await fetch("/api/auth/login", {
+        method: "POST", // Ensure it's a POST request
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem("token", data.token);
-      router.push("/test");
-    } else {
-      setError(data.message);
+      const data = await res.json();
+
+      if (res.ok) {
+        // Redirect to the desired page after successful login
+        router.push("/test");
+      } else {
+        // Show error message if login fails
+        setError(data.message);
+      }
+    } catch (error) {
+      setError("Server error");
     }
   };
 
@@ -53,13 +60,12 @@ export default function Login() {
           <button className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded-md mt-2">Login</button>
         </form>
 
-<p className="mt-2 text-sm">
-  Don't have an account?{" "}
-  <Link href="/register" className="text-blue-400 hover:underline">
-    Register here
-  </Link>
-</p>
-
+        <p className="mt-2 text-sm">
+          Don't have an account?{" "}
+          <Link href="/register" className="text-blue-400 hover:underline">
+            Register here
+          </Link>
+        </p>
       </div>
     </div>
   );

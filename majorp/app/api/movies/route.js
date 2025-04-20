@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db"; // Your MongoDB connection function
 
 export async function GET(request) {
-  try {
+  try { 
     const { searchParams } = new URL(request.url);
     const genre = searchParams.get("genre");
     const language = searchParams.get("language");

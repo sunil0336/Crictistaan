@@ -12,22 +12,31 @@ export async function GET(request) {
       return NextResponse.json({ error: "Invalid movie ID" }, { status: 400 });
     }
 
-    // Ensure DB is connected
+    // Connect to DB
     const client = await connectDB();
-    const db = client.db(); // Get the database instance
-    const reviewsCollection = db.collection("reviews"); // Reference the "reviews" collection
+    const db = client.db();
+    const reviewsCollection = db.collection("reviews");
 
-    // Find reviews by movieId
-    const reviews = await reviewsCollection
-      .find({ movieId: new ObjectId(id) }) // Convert movieId to ObjectId for MongoDB query
-      .toArray();
+    // Find all reviews for this movie
+    const reviews = await reviewsCollection.find({ movieId: new ObjectId(id) }).toArray();
 
     if (!reviews.length) {
-      return NextResponse.json({ error: "No reviews found for this movie" }, { status: 404 });
+      return NextResponse.json({ reviews: [], pagination: { pages: 1 } }, { status: 200 });
     }
 
-    // Return the reviews as JSON
-    return NextResponse.json(reviews, { status: 200 });
+    // Pagination logic (Modify as needed)
+    const reviewsPerPage = 5;
+    const totalReviews = reviews.length;
+    const totalPages = Math.ceil(totalReviews / reviewsPerPage);
+
+    // Return reviews with pagination info
+    return NextResponse.json({
+      reviews,
+      pagination: {
+        totalReviews,
+        pages: totalPages || 1,
+      }
+    }, { status: 200 });
 
   } catch (error) {
     console.error("Error fetching reviews:", error);

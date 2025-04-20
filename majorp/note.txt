@@ -1,0 +1,38 @@
+home page-
+pending work:
+all page is static 
+
+
+Completed :
+
+
+
+MOVIES page-
+pending work:
+share movie reviews add yt trailer on webpage
+reviews from full working 
+
+
+Completed :
+display all movies with pagination
+movie details , display reviews for that movie
+reviews form,
+
+
+tv-shows page-
+pending work:
+
+
+Completed :
+
+
+
+new releases
+
+
+
+
+
+
+pending = search feature, 
+done =

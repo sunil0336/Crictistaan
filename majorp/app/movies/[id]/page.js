@@ -35,7 +35,7 @@ export default function MovieReviewPage() {
       setLoading(true);
       try {
         const res = await fetch(`/api/movies/${params.id}`);
-        
+
         if (!res.ok) {
           if (res.status === 404) {
             router.push("/404");
@@ -43,7 +43,7 @@ export default function MovieReviewPage() {
           }
           throw new Error("Failed to fetch movie");
         }
-  
+
         const data = await res.json();
         console.log("Fetched Reviews Data:", data);
 
@@ -54,47 +54,39 @@ export default function MovieReviewPage() {
         setLoading(false);
       }
     }
-  
+
     if (params.id) {
       fetchMovie();
     }
   }, [params.id, router]);
-  
+
 
   // Fetch reviews
   useEffect(() => {
     async function fetchReviews() {
-      setReviewsLoading(true)
+      setReviewsLoading(true);
       try {
-        const queryParams = new URLSearchParams({
-          movieId: params.id,
-          sort: filterOptions.sort,
-          minRating: filterOptions.minRating,
-          page: currentPage,
-          limit: 5,
-        })
+        const res = await fetch(`/api/reviews/${params.id}`);
+        const data = await res.json();
+        console.log("Fetched Reviews Data:", data); // Debugging
 
-        const res = await  fetch(`/api/reviews?${params.id}`)
-        const data = await res.json()
-        console.log("Fetched Reviews Data:", data);
-
-        setReviews(data.reviews)
-        setTotalPages(data.pagination.pages)
+        setReviews(data?.reviews || []); // Ensure reviews is an array
+        setTotalPages(data?.pagination?.pages || 1); // Fix undefined error
       } catch (error) {
-        console.error("Error fetching reviews:", error)
+        console.error("Error fetching reviews:", error);
       } finally {
-        setReviewsLoading(false)
+        setReviewsLoading(false);
       }
     }
 
     if (params.id) {
-      fetchReviews()
+      fetchReviews();
     }
-  }, [params.id, currentPage, filterOptions])
+  }, [params.id, currentPage, filterOptions]);
 
   const handleFilterChange = (newFilters) => {
     setFilterOptions(newFilters)
-    setCurrentPage(1) // Reset to first page when filters change
+    setCurrentPage(1)
   }
 
   const handleReviewAdded = (newReview) => {
@@ -111,6 +103,10 @@ export default function MovieReviewPage() {
       }))
     }
   }
+
+  const handleClick = (url) => {
+    window.location.href = url;  // Redirect to YouTube URL
+  };
 
   if (loading) {
     return (
@@ -173,9 +169,9 @@ export default function MovieReviewPage() {
 
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <span className="text-sm bg-yellow-500 text-black px-2 py-0.5 rounded">{movie.year}</span>
+                  <span className="text-sm bg-yellow-500 text-black px-2 py-0.5 rounded">{movie.releaseYear}</span>
 
-                  {movie.runtime && <span className="text-sm text-gray-300">${movie.runtime.hours}h ${movie.runtime.minutes}m</span>}
+                  {movie.runtime && <span className="text-sm text-gray-300">{movie.runtime.hours}h {movie.runtime.minutes}m</span>}
 
                   {movie.rating && (
                     <div className="flex items-center gap-1">
@@ -224,7 +220,12 @@ export default function MovieReviewPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <Button className="bg-yellow-500 hover:bg-yellow-600 text-black">Watch Trailer</Button>
+                  <button
+                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded"
+                    onClick={() => handleClick(movie.youtube)}
+                  >
+                    Watch Trailer
+                  </button>
 
                   <Button variant="outline" className="border-white text-white hover:bg-purple-800">
                     <Share className="w-4 h-4 mr-2" />
